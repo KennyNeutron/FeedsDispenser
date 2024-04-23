@@ -62,13 +62,23 @@ void display_MainMenuScreen() {
       break;
   }
 
-
-
-
   display_MainMenuScreen_buttons();
 }
 
 void display_MainMenuScreen_buttons() {
+  if (!Status_btn_Select() && !btn_pressed_toggle) {
+    btn_pressed_toggle = true;
+    switch (menu_count) {
+      case 0:
+        currentScreen = ClockSettings;
+        break;
+
+      default:
+        currentScreen = HomeScreen;
+        break;
+    }
+  }
+
   if (!Status_btn_Cancel() && !btn_pressed_toggle) {
     currentScreen = HomeScreen;
     btn_pressed_toggle = true;
