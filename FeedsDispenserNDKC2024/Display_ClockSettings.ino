@@ -87,7 +87,7 @@ void display_ClockSettingsScreen() {
 
       case 7:
         u8g2.setDrawColor(1); /* color 1 for the box */
-        u8g2.drawBox(27, 53, 80, 15);
+        u8g2.drawBox(24, 53, 80, 15);
         break;
 
       default:

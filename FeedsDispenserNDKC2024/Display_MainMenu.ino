@@ -72,6 +72,9 @@ void display_MainMenuScreen_buttons() {
       case 0:
         currentScreen = ClockSettings;
         break;
+      case 1:
+        currentScreen = FeedingSchedule;
+        break;
       case 2:
         currentScreen = DispenseSettings;
         break;

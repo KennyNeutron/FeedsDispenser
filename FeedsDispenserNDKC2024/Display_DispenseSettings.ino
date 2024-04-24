@@ -108,7 +108,11 @@ void display_DispenseSettingsScreen_buttons() {
       toSet_FeedWeight = 0.0;
     }
 
-    btn_pressed_toggle = true;
+    if (nowSetting == 1) {
+      delay(25);
+    } else {
+      btn_pressed_toggle = true;
+    }
   }
 
   if (!Status_btn_Cancel() && !btn_pressed_toggle) {
@@ -129,8 +133,8 @@ void display_DispenseSettingsScreen_Setup() {
 
 void display_DispenseSettingsScreen_EXIT() {
 
-  EEPROM.write(5, dispense_unit);
-  EEPROM.put(6, toSet_FeedWeight);
+  EEPROM.write(0x05, dispense_unit);
+  EEPROM.put(0x06, toSet_FeedWeight);
   EEPROM.commit();
 
   display_DispenseSettingsScreen_INIT = false;
