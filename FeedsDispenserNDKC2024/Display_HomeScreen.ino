@@ -8,12 +8,12 @@ void display_HomeScreen() {
   if (!display_HomeScreen_INIT) {
     display_HomeScreen_Setup();
   }
-
+  u8g2.setFontPosTop();
 
   u8g2.setFont(u8g2_font_luBIS12_tn);
   char ch_Time[30] = "";
   sprintf(ch_Time, " %02d : %02d : %02d", myRTC.getHour(h12Flag, pmFlag), myRTC.getMinute(), myRTC.getSecond());
-  u8g2.drawStr(0, 20, ch_Time);
+  u8g2.drawStr(0, 15, ch_Time);
 
   u8g2.setFont(u8g2_font_minicute_tr);
   char ch_Date[30] = "";

@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
+#include "EEPROM.h"
 
 #ifdef U8X8_HAVE_HW_SPI
 #include <SPI.h>
@@ -16,6 +17,7 @@ DS3231 myRTC;
 #define HomeScreen 0x0000
 #define MainMenu 0x1000
 #define ClockSettings 0x1100
+#define DispenseSettings 0x1300
 
 U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/U8X8_PIN_NONE);
 
@@ -30,11 +32,20 @@ uint8_t Second = 3;
 uint16_t currentScreen = 0x0000;
 bool btn_pressed_toggle = false;
 
+//DISPENSE SETTINGS
+bool dispense_unit = false;  //TRUE= Kg    FALSE= g
+float toSet_FeedWeight = 0.0;
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Start");
   u8g2.begin();
   btn_Setup();
+
+
+  if (!EEPROM.begin(64)) {
+    Serial.println("failed to initialise EEPROM");
+  }
 
   // //SET-UP DATE and Time
   // myRTC.setClockMode(false);  // set to 24h
@@ -45,6 +56,8 @@ void setup() {
   // myRTC.setHour(5);
   // myRTC.setMinute(0);
   // myRTC.setSecond(0);
+
+  getDispenseDataFromEEPROM();
 }
 
 void loop() {
@@ -60,6 +73,9 @@ void loop() {
     case 0x1100:
       display_ClockSettingsScreen();
       break;
+    case 0x1300:
+      display_DispenseSettingsScreen();
+      break;
     default:
       display_HomeScreen();
       break;
@@ -67,9 +83,16 @@ void loop() {
 
   u8g2.sendBuffer();
 
-  // Serial.println("STATUS SELECT:" + String(Status_btn_Select()));
-  // Serial.println("STATUS UP:" + String(Status_btn_Up()));
-  // Serial.println("STATUS DOWN:" + String(Status_btn_Down()));
-  // Serial.println("STATUS CANCEL:" + String(Status_btn_Cancel()));
   buttonPressed();
+}
+
+void getDispenseDataFromEEPROM() {
+  bool wUnit = EEPROM.read(5);
+  float f;
+  EEPROM.get(6, f);
+  dispense_unit = wUnit;
+  toSet_FeedWeight = f;
+  Serial.println("EEPROM DATA:");
+  Serial.println(wUnit);
+  Serial.println(f);
 }

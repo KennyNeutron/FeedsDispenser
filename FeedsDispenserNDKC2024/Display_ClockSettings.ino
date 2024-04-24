@@ -1,5 +1,5 @@
 //Screen Address: 0x1100
-bool display_ClockSettings = false;
+bool display_ClockSettings_INIT = false;
 
 bool ClockSettingsUpdateMode = false;  //False= MANUAL   True= AUTO (Via Internet)
 
@@ -13,103 +13,134 @@ uint8_t toSet_DOW = 0;
 
 uint8_t nowSetting = 0;
 
+bool SaveSettings = false;
+
+uint32_t ClockSettings_LastMillis = 0;
+
+bool ClockSettings_Saved = false;
+
 void display_ClockSettingsScreen() {
-  if (!display_ClockSettings) {
+  if (!display_ClockSettings_INIT) {
     display_ClockSettingsScreen_Setup();
   }
-  u8g2.setFontMode(1); /* activate transparent font mode */
 
-  switch (nowSetting) {
-    case 0:
-      u8g2.setDrawColor(1); /* color 1 for the box */
-      u8g2.drawBox(42, 17, 60, 11);
-      break;
+  if (SaveSettings == true) {
+    u8g2.setFont(u8g2_font_minicute_tr);
+    u8g2.setFontPosTop();
+    u8g2.drawStr(30, 20, "SAVING...");
 
-    case 1:
-      u8g2.setDrawColor(1); /* color 1 for the box */
-      u8g2.drawBox(27, 29, 20, 11);
-      break;
+    if (!ClockSettings_Saved) {
+      //SET-UP DATE and Time
+      myRTC.setClockMode(false);  // set to 24h
+      myRTC.setYear(toSet_Year);
+      myRTC.setMonth(toSet_Month);
+      myRTC.setDate(toSet_Date);
+      myRTC.setDoW(toSet_DOW);
+      myRTC.setHour(toSet_Hour);
+      myRTC.setMinute(toSet_Minute);
+      myRTC.setSecond(toSet_Second);
+      ClockSettings_Saved=true;
+    }
 
-    case 2:
-      u8g2.setDrawColor(1); /* color 1 for the box */
-      u8g2.drawBox(52, 29, 20, 11);
-      break;
+    if ((millis() - ClockSettings_LastMillis) >= 2000) {
+      display_ClockSettingsScreen_EXIT();
+    }
 
-    case 3:
-      u8g2.setDrawColor(1); /* color 1 for the box */
-      u8g2.drawBox(77, 29, 20, 11);
-      break;
-
-    case 4:
-      u8g2.setDrawColor(1); /* color 1 for the box */
-      u8g2.drawBox(28, 42, 20, 11);
-      break;
-
-    case 5:
-      u8g2.setDrawColor(1); /* color 1 for the box */
-      u8g2.drawBox(56, 42, 20, 11);
-      break;
-
-    case 6:
-      u8g2.setDrawColor(1); /* color 1 for the box */
-      u8g2.drawBox(81, 42, 20, 11);
-      break;
-
-    case 7:
-      u8g2.setDrawColor(1); /* color 1 for the box */
-      u8g2.drawBox(27, 53, 80, 15);
-      break;
-
-    default:
-      nowSetting = 0;
-      break;
-  }
-
-  u8g2.setDrawColor(2);
-  u8g2.setFontPosTop();
-  u8g2.setFont(u8g2_font_minicute_tr);
-  u8g2.drawStr(0, 0, "Clock Settings");
-
-  if (ClockSettingsUpdateMode) {
-    u8g2.drawStr(0, 18, "Update: AUTOMATIC");
   } else {
-    u8g2.drawStr(0, 18, "Update: MANUAL");
+    u8g2.setFontMode(1); /* activate transparent font mode */
+
+    switch (nowSetting) {
+      case 0:
+        u8g2.setDrawColor(1); /* color 1 for the box */
+        u8g2.drawBox(42, 17, 60, 11);
+        break;
+
+      case 1:
+        u8g2.setDrawColor(1); /* color 1 for the box */
+        u8g2.drawBox(27, 29, 20, 11);
+        break;
+
+      case 2:
+        u8g2.setDrawColor(1); /* color 1 for the box */
+        u8g2.drawBox(52, 29, 20, 11);
+        break;
+
+      case 3:
+        u8g2.setDrawColor(1); /* color 1 for the box */
+        u8g2.drawBox(77, 29, 20, 11);
+        break;
+
+      case 4:
+        u8g2.setDrawColor(1); /* color 1 for the box */
+        u8g2.drawBox(28, 42, 20, 11);
+        break;
+
+      case 5:
+        u8g2.setDrawColor(1); /* color 1 for the box */
+        u8g2.drawBox(56, 42, 20, 11);
+        break;
+
+      case 6:
+        u8g2.setDrawColor(1); /* color 1 for the box */
+        u8g2.drawBox(81, 42, 20, 11);
+        break;
+
+      case 7:
+        u8g2.setDrawColor(1); /* color 1 for the box */
+        u8g2.drawBox(27, 53, 80, 15);
+        break;
+
+      default:
+        nowSetting = 0;
+        break;
+    }
+
+    u8g2.setDrawColor(2);
+    u8g2.setFontPosTop();
+    u8g2.setFont(u8g2_font_minicute_tr);
+    u8g2.drawStr(0, 0, "Clock Settings");
+
+    if (ClockSettingsUpdateMode) {
+      u8g2.drawStr(0, 18, "Update: AUTOMATIC");
+    } else {
+      u8g2.drawStr(0, 18, "Update: MANUAL");
+    }
+
+
+    char ch_Time[40] = "";
+    sprintf(ch_Time, "TIME: %02d : %02d : %02d", toSet_Hour, toSet_Minute, toSet_Second);
+    u8g2.drawStr(0, 30, ch_Time);
+
+    char ch_Date[40] = "";
+    sprintf(ch_Date, "DATE: %02d / %02d / %02d", toSet_Month, toSet_Date, toSet_Year);
+    u8g2.drawStr(0, 42, ch_Date);
+
+    switch (toSet_DOW) {
+      case 1:
+        u8g2.drawStr(0, 54, "DAY: SUNDAY");
+        break;
+      case 2:
+        u8g2.drawStr(0, 54, "DAY: MONDAY");
+        break;
+      case 3:
+        u8g2.drawStr(0, 54, "DAY: TUESDAY");
+        break;
+      case 4:
+        u8g2.drawStr(0, 54, "DAY: WEDNESDAY");
+        break;
+      case 5:
+        u8g2.drawStr(0, 54, "DAY: THURSDAY");
+        break;
+      case 6:
+        u8g2.drawStr(0, 54, "DAY: FRIDAY");
+        break;
+      case 7:
+        u8g2.drawStr(0, 54, "DAY: SATURDAY");
+        break;
+    }
+
+    display_ClockSettingsScreen_buttons();
   }
-
-
-  char ch_Time[40] = "";
-  sprintf(ch_Time, "TIME: %02d : %02d : %02d", toSet_Hour, toSet_Minute, toSet_Second);
-  u8g2.drawStr(0, 30, ch_Time);
-
-  char ch_Date[40] = "";
-  sprintf(ch_Date, "DATE: %02d / %02d / %02d", toSet_Month, toSet_Date, toSet_Year);
-  u8g2.drawStr(0, 42, ch_Date);
-
-  switch (toSet_DOW) {
-    case 1:
-      u8g2.drawStr(0, 54, "DAY: SUNDAY");
-      break;
-    case 2:
-      u8g2.drawStr(0, 54, "DAY: MONDAY");
-      break;
-    case 3:
-      u8g2.drawStr(0, 54, "DAY: TUESDAY");
-      break;
-    case 4:
-      u8g2.drawStr(0, 54, "DAY: WEDNESDAY");
-      break;
-    case 5:
-      u8g2.drawStr(0, 54, "DAY: THURSDAY");
-      break;
-    case 6:
-      u8g2.drawStr(0, 54, "DAY: FRIDAY");
-      break;
-    case 7:
-      u8g2.drawStr(0, 54, "DAY: SATURDAY");
-      break;
-  }
-
-  display_ClockSettingsScreen_buttons();
 }
 
 void display_ClockSettingsScreen_buttons() {
@@ -122,15 +153,17 @@ void display_ClockSettingsScreen_buttons() {
   }
 
   if (!Status_btn_Cancel() && !btn_pressed_toggle) {
+    SaveSettings = true;
+    ClockSettings_LastMillis = millis();
     btn_pressed_toggle = true;
   }
 
   if ((!Status_btn_Up() || !Status_btn_Down()) && !btn_pressed_toggle) {
     bool btnUpDown = false;  //true:UP   false:DOWN
     if (Status_btn_Up()) {
-      btnUpDown = true;
-    } else {
       btnUpDown = false;
+    } else {
+      btnUpDown = true;
     }
 
     switch (nowSetting) {
@@ -259,5 +292,16 @@ void display_ClockSettingsScreen_Setup() {
 
   toSet_DOW = myRTC.getDoW();
 
-  display_ClockSettings = true;
+  SaveSettings = false;
+
+  ClockSettings_Saved = false;
+
+  display_ClockSettings_INIT = true;
+}
+
+void display_ClockSettingsScreen_EXIT() {
+  nowSetting=0;
+  SaveSettings = false;
+  display_ClockSettings_INIT = false;
+  currentScreen = MainMenu;
 }
