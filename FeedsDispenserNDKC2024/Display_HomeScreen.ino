@@ -61,6 +61,15 @@ void display_HomeScreen_buttons() {
   }
 
   if (!Status_btn_Up() && !btn_pressed_toggle) {
+    Actuator_RETRACT();
+  }
+
+  if (!Status_btn_Down() && !btn_pressed_toggle && Status_LimitSW()) {
+    Actuator_EXTEND();
+  }
+
+  if (Status_btn_Up() && Status_btn_Down() && !btn_pressed_toggle) {
+    Actuator_STOP();
   }
 }
 

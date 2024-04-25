@@ -74,14 +74,14 @@ void loop() {
   if (newDataReady) {
     if (millis() > t + serialPrintInterval) {
       float i = LoadCell.getData();
-      timbang[timbang_count] = i / 1000;
+      timbang[timbang_count] = i;
       weight_actual = 0.0;
-      if (timbang_count >= 30) {
-        for (int a = 0; a < 30; a++) {
+      if (timbang_count >= 20) {
+        for (int a = 0; a <= 20; a++) {
           weight_actual = weight_actual + timbang[a];
         }
         Serial.print("Weight: ");
-        Serial.println(weight_actual / 30, 2);
+        Serial.println(weight_actual / 20, 2);
         timbang_count = 0;
       }
 
@@ -91,14 +91,4 @@ void loop() {
     }
   }
 
-  // receive command from serial terminal, send 't' to initiate tare operation:
-  if (Serial.available() > 0) {
-    char inByte = Serial.read();
-    if (inByte == 't') LoadCell.tareNoDelay();
-  }
-
-  // check if last tare operation is complete:
-  if (LoadCell.getTareStatus() == true) {
-    Serial.println("Tare complete");
-  }
 }

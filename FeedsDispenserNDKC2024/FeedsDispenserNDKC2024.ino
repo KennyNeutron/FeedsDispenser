@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <HX711_ADC.h>
 #include <U8g2lib.h>
 #include "EEPROM.h"
 
@@ -44,8 +45,30 @@ uint8_t FS_Repeat = 1;
 uint8_t FS_IntervalHour = 1;
 uint8_t FS_IntervalMinute = 30;
 
+//Actuators
+uint32_t ActuatorRetract_last_millis = 0;
+bool ActuatorRetract_flag = false;
+
+uint8_t dispenseRepeat = 0;
+uint8_t next_FeedingSchedule_Hour = 0;
+uint8_t next_FeedingSchedule_Minute = 0;
+
+bool FeedingDone = false;
+
+
+//LoadCell
+const int HX711_dout = 16;  //mcu > HX711 dout pin
+const int HX711_sck = 17;   //mcu > HX711 sck pin
+
+//HX711 constructor:
+HX711_ADC LoadCell(HX711_dout, HX711_sck);
+
+const int calVal_calVal_eepromAdress = 0;
+unsigned long t = 0;
+
+
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("Start");
   u8g2.begin();
   btn_Setup();
@@ -66,6 +89,27 @@ void setup() {
   // myRTC.setSecond(0);
 
   getDispenseDataFromEEPROM();
+  getFeedingScheduleDataFromEEPROM();
+
+  delay(500);
+  Serial.println("Actuator Setup");
+  ActuatorSETUP();
+  delay(1000);
+
+  Serial.println("EXTEND!");
+  while (Status_LimitSW()) {
+    Serial.print("Limit SW:");
+    Serial.println(Status_LimitSW());
+    Actuator_EXTEND();
+    ActuatorRetract_flag = false;
+  }
+  Actuator_STOP();
+  Serial.println("Actuator Setup Done");
+
+  dispenseRepeat = FS_Repeat;
+  getNextFeedingSchedule();
+
+  LoadCell_Setup();
 }
 
 void loop() {
@@ -91,10 +135,16 @@ void loop() {
       display_HomeScreen();
       break;
   }
-
   u8g2.sendBuffer();
-
   buttonPressed();
+
+  LoadCell_Loop();
+
+  if (IsItTimeToFeed() && !FeedingDone) {
+    Serial.println("FEED NOW!");
+    dispenseFeeds();
+    FeedingDone = true;
+  }
 }
 
 void getDispenseDataFromEEPROM() {
