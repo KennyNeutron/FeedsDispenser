@@ -192,4 +192,5 @@ void display_FeedingScheduleScreen_EXIT() {
 
   getNextFeedingSchedule();
   currentScreen = MainMenu;
+  storeNextFeedingSchedToEEPROM();
 }

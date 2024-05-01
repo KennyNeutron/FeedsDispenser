@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <HX711_ADC.h>
 #include <U8g2lib.h>
+
 #include "EEPROM.h"
 #include "variables.h"
 
@@ -64,7 +65,6 @@ void setup() {
   Serial.println("Actuator Setup Done");
 
   dispenseRepeat = FS_Repeat;
-  getNextFeedingSchedule();
 
   LoadCell_Setup();
   LoadCell_Loop();
@@ -148,10 +148,12 @@ void setPreviousWeightToEEPROM() {
 void storeNextFeedingSchedToEEPROM() {
   EEPROM.write(0x40, next_FeedingSchedule_Hour);
   EEPROM.write(0x41, next_FeedingSchedule_Minute);
+  EEPROM.write(0x42, dispenseRepeat);
   EEPROM.commit();
 }
 
 void getNextFeedingScheduleFromEEPROM() {
   next_FeedingSchedule_Hour = EEPROM.read(0x40);
   next_FeedingSchedule_Minute = EEPROM.read(0x41);
+  dispenseRepeat = EEPROM.read(0x42);
 }
