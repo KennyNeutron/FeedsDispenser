@@ -25,6 +25,7 @@ DS3231 myRTC;
 U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/U8X8_PIN_NONE);
 
 
+
 void setup() {
   Serial.begin(9600);
   Serial.println("Start");
@@ -70,8 +71,9 @@ void setup() {
   LoadCell_Loop();
 
   // //previos weight
-  // previousWeight = currentWeight;
-  // EEPROM.put(0x30, 0.0);
+  //  previousWeight = currentWeight;
+  //
+   EEPROM.put(0x30, 0.0);
   // EEPROM.commit();
 
   EEPROM.get(0x30, previousWeight);
@@ -107,7 +109,7 @@ void loop() {
   LoadCell_Loop();
 
 
-  if (IsItTimeToFeed() && !FeedingDone) {
+  if (IsItTimeToFeed() && !FeedingDone && currentWeight > toSet_FeedWeight) {
     Serial.println("FEED NOW!");
     dispenseFeeds();
     FeedingDone = true;
