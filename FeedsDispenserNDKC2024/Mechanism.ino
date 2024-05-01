@@ -41,7 +41,6 @@ void dispenseFeeds() {
 
 
 void getNextFeedingSchedule() {
-gNFS:
   if (dispenseRepeat == FS_Repeat) {
     next_FeedingSchedule_Hour = FS_StartHour;
     next_FeedingSchedule_Minute = FS_StartMinute;
@@ -56,13 +55,11 @@ gNFS:
     dispenseRepeat--;
     if (dispenseRepeat == 0) {
       dispenseRepeat == FS_Repeat;
-      goto gNFS;
     }
   }
 
   if (next_FeedingSchedule_Hour >= 24) {
     dispenseRepeat == FS_Repeat;
-    goto gNFS;
   }
 }
 
