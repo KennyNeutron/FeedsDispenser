@@ -1,7 +1,5 @@
 //Screen Address: 0x1200
-
 bool display_FeedingScheduleScreen_INIT = false;
-
 uint32_t FeedingSchedule_LastMillis = 0;
 
 void display_FeedingScheduleScreen() {
@@ -176,6 +174,7 @@ void display_FeedingScheduleScreen_VariableControl() {
 void display_FeedingScheduleScreen_Setup() {
   display_FeedingScheduleScreen_INIT = true;
   SaveSettings = false;
+  dispenseRepeat = FS_Repeat;
   getFeedingScheduleDataFromEEPROM();
 }
 
@@ -190,5 +189,7 @@ void display_FeedingScheduleScreen_EXIT() {
   EEPROM.write(0x13, FS_IntervalMinute);
   EEPROM.write(0x14, FS_Repeat);
   EEPROM.commit();
+
+  getNextFeedingSchedule();
   currentScreen = MainMenu;
 }

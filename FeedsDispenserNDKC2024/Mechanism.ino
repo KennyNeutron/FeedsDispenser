@@ -1,9 +1,12 @@
 float WeightBeforeFeeding = 0.0;
 
 void dispenseFeeds() {
+  u8g2.clearBuffer();
 
+  u8g2.drawStr(30, 20, "DISPENSING...");
+  u8g2.sendBuffer();
   LoadCell_Loop();
-  
+
   WeightBeforeFeeding = currentWeight;
   Serial.print("Weight Before Feeding:");
   Serial.println(WeightBeforeFeeding);
@@ -13,10 +16,12 @@ void dispenseFeeds() {
   Actuator_STOP();
   Serial.println("Dispensing");
 
-  while ((WeightBeforeFeeding - currentWeight) < (toSet_FeedWeight*0.35)) {
+  while ((WeightBeforeFeeding - currentWeight) < (toSet_FeedWeight * 0.35)) {
     Serial.print("Dispensed Weight:");
-    Serial.println(WeightBeforeFeeding - currentWeight);
     LoadCell_Loop();
+    char ch_CurrentWeight[15] = "";
+    sprintf(ch_CurrentWeight, "CW: %.1f", currentWeight);
+    u8g2.drawStr(0, 0, ch_CurrentWeight);
   }
 
   Serial.println("EXTEND!");
@@ -29,13 +34,35 @@ void dispenseFeeds() {
 
   Actuator_STOP();
   Serial.println("Feeding Done");
-
+  getNextFeedingSchedule();
+  setPreviousWeightToEEPROM();
+  storeNextFeedingSchedToEEPROM();
 }
 
+
 void getNextFeedingSchedule() {
+gNFS:
   if (dispenseRepeat == FS_Repeat) {
     next_FeedingSchedule_Hour = FS_StartHour;
     next_FeedingSchedule_Minute = FS_StartMinute;
+    dispenseRepeat--;
+  } else {
+    next_FeedingSchedule_Minute = next_FeedingSchedule_Minute + FS_IntervalMinute;
+    if (next_FeedingSchedule_Minute >= 60) {
+      next_FeedingSchedule_Minute = next_FeedingSchedule_Minute - 60;
+      next_FeedingSchedule_Hour++;
+    }
+    next_FeedingSchedule_Hour = next_FeedingSchedule_Hour + FS_IntervalHour;
+    dispenseRepeat--;
+    if (dispenseRepeat == 0) {
+      dispenseRepeat == FS_Repeat;
+      goto gNFS;
+    }
+  }
+
+  if (next_FeedingSchedule_Hour >= 24) {
+    dispenseRepeat == FS_Repeat;
+    goto gNFS;
   }
 }
 

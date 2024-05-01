@@ -51,6 +51,14 @@ void display_HomeScreen() {
       u8g2.drawStr(41, 50, "SATURDAY");
       break;
   }
+
+  char ch_CurrentWeight[15] = "";
+  sprintf(ch_CurrentWeight, "CW: %.1fKg", currentWeight/1000);
+  u8g2.drawStr(0, 0, ch_CurrentWeight);
+
+  char ch_NextDispenseSched[30] = "";
+  sprintf(ch_NextDispenseSched, "NDS: %02d:%02d", next_FeedingSchedule_Hour, next_FeedingSchedule_Minute);
+    u8g2.drawStr(64, 0, ch_NextDispenseSched);
 }
 
 

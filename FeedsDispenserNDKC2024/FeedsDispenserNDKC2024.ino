@@ -2,6 +2,7 @@
 #include <HX711_ADC.h>
 #include <U8g2lib.h>
 #include "EEPROM.h"
+#include "variables.h"
 
 #ifdef U8X8_HAVE_HW_SPI
 #include <SPI.h>
@@ -14,7 +15,6 @@
 
 DS3231 myRTC;
 
-
 #define HomeScreen 0x0000
 #define MainMenu 0x1000
 #define ClockSettings 0x1100
@@ -22,49 +22,6 @@ DS3231 myRTC;
 #define DispenseSettings 0x1300
 
 U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/U8X8_PIN_NONE);
-
-bool century = false;
-bool h12Flag;
-bool pmFlag;
-
-uint8_t Hour = 1;
-uint8_t Minute = 2;
-uint8_t Second = 3;
-
-uint16_t currentScreen = 0x0000;
-bool btn_pressed_toggle = false;
-
-//DISPENSE SETTINGS
-bool dispense_unit = false;  //TRUE= Kg    FALSE= g
-float toSet_FeedWeight = 0.0;
-
-//FEEDING SCHEDULE
-uint8_t FS_StartHour = 0;
-uint8_t FS_StartMinute = 0;
-uint8_t FS_Repeat = 1;
-uint8_t FS_IntervalHour = 1;
-uint8_t FS_IntervalMinute = 30;
-
-//Actuators
-uint32_t ActuatorRetract_last_millis = 0;
-bool ActuatorRetract_flag = false;
-
-uint8_t dispenseRepeat = 0;
-uint8_t next_FeedingSchedule_Hour = 0;
-uint8_t next_FeedingSchedule_Minute = 0;
-
-bool FeedingDone = false;
-
-
-//LoadCell
-const int HX711_dout = 16;  //mcu > HX711 dout pin
-const int HX711_sck = 17;   //mcu > HX711 sck pin
-
-//HX711 constructor:
-HX711_ADC LoadCell(HX711_dout, HX711_sck);
-
-const int calVal_calVal_eepromAdress = 0;
-unsigned long t = 0;
 
 
 void setup() {
@@ -84,7 +41,7 @@ void setup() {
   // myRTC.setMonth(4);
   // myRTC.setDate(23);
   // myRTC.setDoW(3);
-  // myRTC.setHour(5);
+  //myRTC.setHour(5);
   // myRTC.setMinute(0);
   // myRTC.setSecond(0);
 
@@ -110,6 +67,15 @@ void setup() {
   getNextFeedingSchedule();
 
   LoadCell_Setup();
+  LoadCell_Loop();
+
+  // //previos weight
+  // previousWeight = currentWeight;
+  // EEPROM.put(0x30, 0.0);
+  // EEPROM.commit();
+
+  EEPROM.get(0x30, previousWeight);
+  getNextFeedingScheduleFromEEPROM();
 }
 
 void loop() {
@@ -140,10 +106,16 @@ void loop() {
 
   LoadCell_Loop();
 
+
   if (IsItTimeToFeed() && !FeedingDone) {
     Serial.println("FEED NOW!");
     dispenseFeeds();
     FeedingDone = true;
+  }
+
+
+  if (FeedingDone && myRTC.getMinute() != next_FeedingSchedule_Minute) {
+    FeedingDone = false;
   }
 }
 
@@ -165,4 +137,21 @@ void getFeedingScheduleDataFromEEPROM() {
   FS_Repeat = EEPROM.read(0x14);
   FS_IntervalHour = EEPROM.read(0x12);
   FS_IntervalMinute = EEPROM.read(0x13);
+}
+
+void setPreviousWeightToEEPROM() {
+  previousWeight = currentWeight;
+  EEPROM.put(0x30, previousWeight);
+  EEPROM.commit();
+}
+
+void storeNextFeedingSchedToEEPROM() {
+  EEPROM.write(0x40, next_FeedingSchedule_Hour);
+  EEPROM.write(0x41, next_FeedingSchedule_Minute);
+  EEPROM.commit();
+}
+
+void getNextFeedingScheduleFromEEPROM() {
+  next_FeedingSchedule_Hour = EEPROM.read(0x40);
+  next_FeedingSchedule_Minute = EEPROM.read(0x41);
 }

@@ -12,7 +12,7 @@ bool Actuator_FullRetract() {
     Serial.println("last millis saved");
   }
 
-  if (ActuatorRetract_flag && (millis() - ActuatorRetract_last_millis) >= 5000) {
+  if (ActuatorRetract_flag && (millis() - ActuatorRetract_last_millis) >= 7000) {
     return true;
   } else {
     return false;

@@ -1,7 +1,5 @@
 //Calibration Factor: 22.17
 
-float currentWeight=0.0;
-
 void LoadCell_Setup() {
   Serial.println("Load Cell Setup");
 
@@ -52,7 +50,7 @@ void LoadCell_Loop() {
   if (newDataReady) {
     if (millis() > t + serialPrintInterval) {
       float i = LoadCell.getData();
-      currentWeight=i;
+      currentWeight=i+previousWeight;
       //Serial.print("Load_cell output val: ");
       //  Serial.println(i);
       newDataReady = 0;
