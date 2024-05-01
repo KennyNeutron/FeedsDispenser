@@ -34,12 +34,8 @@ void dispenseFeeds() {
 
   Actuator_STOP();
   Serial.println("Feeding Done");
-  delay(3000);
   getNextFeedingSchedule();
-  setPreviousWeightToEEPROM();
-  delay(500);
-  LoadCell_Loop();
-  storeNextFeedingSchedToEEPROM();
+
 }
 
 

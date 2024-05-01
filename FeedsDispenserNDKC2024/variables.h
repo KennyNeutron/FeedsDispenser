@@ -35,7 +35,6 @@ bool FeedingDone = false;
 const int HX711_dout = 16;  //mcu > HX711 dout pin
 const int HX711_sck = 17;   //mcu > HX711 sck pin
 float currentWeight=0.0;
-float previousWeight=0.0;
 
 //HX711 constructor:
 HX711_ADC LoadCell(HX711_dout, HX711_sck);

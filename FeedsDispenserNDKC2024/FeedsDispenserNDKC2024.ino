@@ -70,14 +70,6 @@ void setup() {
   LoadCell_Setup();
   LoadCell_Loop();
 
-  // //previos weight
-  //  previousWeight = currentWeight;
-  //
-   EEPROM.put(0x30, 0.0);
-  // EEPROM.commit();
-
-  EEPROM.get(0x30, previousWeight);
-  getNextFeedingScheduleFromEEPROM();
 }
 
 void loop() {
@@ -139,23 +131,4 @@ void getFeedingScheduleDataFromEEPROM() {
   FS_Repeat = EEPROM.read(0x14);
   FS_IntervalHour = EEPROM.read(0x12);
   FS_IntervalMinute = EEPROM.read(0x13);
-}
-
-void setPreviousWeightToEEPROM() {
-  previousWeight = currentWeight;
-  EEPROM.put(0x30, previousWeight);
-  EEPROM.commit();
-}
-
-void storeNextFeedingSchedToEEPROM() {
-  EEPROM.write(0x40, next_FeedingSchedule_Hour);
-  EEPROM.write(0x41, next_FeedingSchedule_Minute);
-  EEPROM.write(0x42, dispenseRepeat);
-  EEPROM.commit();
-}
-
-void getNextFeedingScheduleFromEEPROM() {
-  next_FeedingSchedule_Hour = EEPROM.read(0x40);
-  next_FeedingSchedule_Minute = EEPROM.read(0x41);
-  dispenseRepeat = EEPROM.read(0x42);
 }

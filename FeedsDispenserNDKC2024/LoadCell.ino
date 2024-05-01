@@ -50,7 +50,7 @@ void LoadCell_Loop() {
   if (newDataReady) {
     if (millis() > t + serialPrintInterval) {
       float i = LoadCell.getData();
-      currentWeight=i+previousWeight;
+      currentWeight=i;
       //Serial.print("Load_cell output val: ");
       //  Serial.println(i);
       newDataReady = 0;
