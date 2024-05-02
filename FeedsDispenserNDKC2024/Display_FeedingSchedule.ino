@@ -189,6 +189,7 @@ void display_FeedingScheduleScreen_EXIT() {
   EEPROM.write(0x13, FS_IntervalMinute);
   EEPROM.write(0x14, FS_Repeat);
   EEPROM.commit();
-  
+  dispenseRepeat = FS_Repeat;
+  getNextFeedingSchedule();
   currentScreen = MainMenu;
 }

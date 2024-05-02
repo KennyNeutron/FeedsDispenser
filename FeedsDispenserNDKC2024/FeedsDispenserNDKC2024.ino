@@ -69,7 +69,7 @@ void setup() {
 
   LoadCell_Setup();
   LoadCell_Loop();
-
+  getNextFeedingSchedule();
 }
 
 void loop() {
@@ -87,6 +87,7 @@ void loop() {
       break;
     case 0x1200:
       display_FeedingScheduleScreen();
+   
       break;
     case 0x1300:
       display_DispenseSettingsScreen();

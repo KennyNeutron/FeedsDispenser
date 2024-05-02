@@ -34,8 +34,8 @@ void dispenseFeeds() {
 
   Actuator_STOP();
   Serial.println("Feeding Done");
+  dispenseRepeat--;
   getNextFeedingSchedule();
-
 }
 
 
@@ -43,7 +43,6 @@ void getNextFeedingSchedule() {
   if (dispenseRepeat == FS_Repeat) {
     next_FeedingSchedule_Hour = FS_StartHour;
     next_FeedingSchedule_Minute = FS_StartMinute;
-    dispenseRepeat--;
   } else {
     next_FeedingSchedule_Minute = next_FeedingSchedule_Minute + FS_IntervalMinute;
     if (next_FeedingSchedule_Minute >= 60) {
@@ -51,9 +50,10 @@ void getNextFeedingSchedule() {
       next_FeedingSchedule_Hour++;
     }
     next_FeedingSchedule_Hour = next_FeedingSchedule_Hour + FS_IntervalHour;
-    dispenseRepeat--;
     if (dispenseRepeat == 0) {
       dispenseRepeat == FS_Repeat;
+      next_FeedingSchedule_Hour = FS_StartHour;
+      next_FeedingSchedule_Minute = FS_StartMinute;
     }
   }
 
